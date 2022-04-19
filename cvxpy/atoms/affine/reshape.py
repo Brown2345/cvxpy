@@ -48,7 +48,17 @@ class reshape(AffAtom):
         if len(shape) > 2:
             raise ValueError("Expressions of dimension greater than 2 "
                              "are not supported.")
-        self._shape = tuple(shape)
+        if len(shape) == 2:
+            if shape[0] == -1:
+                if shape[1] == -1 or type(expr.size/shape[1]) == int:
+                    raise ValueError("Invlid reshape dimensions %s." % (self._shape,))
+                self._shape = tuple((expr.size/shape[1], shape[1]))
+            if shape[1] == -1:
+                self._shape = tuple((shape[0],expr.size / shape[0]))
+            else:
+                self._shape = tuple(shape)
+        else:
+            self._shape = tuple(shape)
         assert order in ['F', 'C']
         self.order = order
         super(reshape, self).__init__(expr)
